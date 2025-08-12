@@ -37,8 +37,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
   }
 
   // إرسال رسالة معالجة
-  const processingMsg = await api.sendMessage("⏳ " + getText("processing"), event.threadID);
-
+  
   try {
     // إرسال الطلب للـ API
     const response = await axios.get(API_URL, {
@@ -54,10 +53,9 @@ module.exports.run = async function ({ api, event, args, getText }) {
     const usage = response.data?.usage || "";
 
     // حذف رسالة المعالجة
-    api.unsendMessage(processingMsg.messageID);
-
+    
     // إرسال الرد
-    const finalMessage = `🤖 آريا تقول:\n\n${reply}${usage ? `\n\n📊 الاستخدام: ${usage}` : ""}`;
+    const finalMessage = `${reply}` : ""}`;
     
     return api.sendMessage(finalMessage, event.threadID, event.messageID);
 
