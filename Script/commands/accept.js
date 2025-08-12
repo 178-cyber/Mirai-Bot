@@ -5,16 +5,16 @@ module.exports.config = {
   version: "1.0.0",
   hasPermssion: 2,
   credits: "Mirai Team",
-  description: "Accept or delete Facebook friend requests",
-  commandCategory: "bot id",
-  usages: "Reply: add/del <number|all>",
+  description: "قبول أو حذف طلبات الصداقة في فيسبوك",
+  commandCategory: "معرف البوت",
+  usages: "رد: اضف/احذف <رقم|الكل>",
   cooldowns: 0
 };
 
 module.exports.languages = {
-  en: {
-    noRequests: "No friend requests available.",
-    action: `Reply to this message with:\n» add <num|all>\n» del <num|all>\nto accept or delete friend requests.`
+  ar: {
+    noRequests: "لا توجد طلبات صداقة متاحة.",
+    action: `قم بالرد على هذه الرسالة بـ:\n» اضف <رقم|الكل>\n» احذف <رقم|الكل>\nلقبول أو حذف طلبات الصداقة.`
   }
 };
 
@@ -33,13 +33,13 @@ module.exports.run = async ({ event, api, getText }) => {
   if (!listRequest || listRequest.length === 0)
     return api.sendMessage(getText("noRequests"), event.threadID, event.messageID);
 
-  let msg = "=== 𝗙𝗿𝗶𝗲𝗻𝗱 𝗥𝗲𝗾𝘂𝗲𝘀𝘁𝘀 ===";
+  let msg = "=== طلبات الصداقة ===";
   let i = 0;
 
   for (const user of listRequest) {
     i++;
     const time = moment(user.time * 1000).tz("Asia/Dhaka").format("DD/MM/YYYY HH:mm:ss");
-    msg += `\n\n${i}. 👤 𝗡𝗮𝗺𝗲: ${user.node.name}\n🆔 UID: ${user.node.id}\n🌐 Link: ${user.node.url.replace("www.facebook", "fb")}\n🕒 Sent: ${time}`;
+    msg += `\n\n${i}. 👤 الاسم: ${user.node.name}\n🆔 UID: ${user.node.id}\n🌐 الرابط: ${user.node.url.replace("www.facebook", "fb")}\n🕒 أُرسل: ${time}`;
   }
 
   msg += `\n\n${getText("action")}`;
@@ -63,11 +63,11 @@ module.exports.handleReply = async ({ handleReply, event, api }) => {
   const action = args[0].toLowerCase();
   let targets = args.slice(1);
 
-  if (!["add", "del"].includes(action)) {
-    return api.sendMessage("❗ Please use `add` or `del` followed by number(s) or `all`.", event.threadID, event.messageID);
+  if (!["اضف", "احذف", "add", "del"].includes(action)) {
+    return api.sendMessage("❗ يرجى استخدام `اضف` أو `احذف` متبوعًا برقم/أرقام أو `الكل`.", event.threadID, event.messageID);
   }
 
-  if (targets[0] === "all") {
+  if (targets[0] === "الكل" || targets[0] === "all") {
     targets = listRequest.map((_, index) => (index + 1).toString());
   }
 
@@ -77,7 +77,7 @@ module.exports.handleReply = async ({ handleReply, event, api }) => {
     variables: {},
   };
 
-  if (action === "add") {
+  if (action === "اضف" || action === "add") {
     form.fb_api_req_friendly_name = "FriendingCometFriendRequestConfirmMutation";
     form.doc_id = "3147613905362928";
   } else {
@@ -92,7 +92,7 @@ module.exports.handleReply = async ({ handleReply, event, api }) => {
     const pos = parseInt(index) - 1;
     const user = listRequest[pos];
     if (!user) {
-      failed.push(`❌ STT ${index} not found`);
+      failed.push(`❌ الرقم ${index} غير موجود`);
       continue;
     }
 
@@ -118,7 +118,7 @@ module.exports.handleReply = async ({ handleReply, event, api }) => {
   }
 
   api.sendMessage(
-    `🎯 Action: ${action === "add" ? "Accepted" : "Deleted"}\n\n✅ Success (${success.length}):\n${success.join("\n")}\n\n❌ Failed (${failed.length}):\n${failed.join("\n")}`,
+    `🎯 الإجراء: ${action === "اضف" || action === "add" ? "تم القبول" : "تم الحذف"}\n\n✅ الناجح (${success.length}):\n${success.join("\n")}\n\n❌ الفاشل (${failed.length}):\n${failed.join("\n")}`,
     event.threadID,
     event.messageID
   );
