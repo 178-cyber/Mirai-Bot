@@ -5,7 +5,7 @@ const ARIA_API_URL = "https://haji-mix-api.gleeze.com/api/aria";
 const API_KEY = "2ad1b6fc3d11354ea82d809b9f6b6864ff32d64f75bbd0d10d1b7a487c6f09cb";
 
 module.exports.config = {
-  name: "اريا",
+  name: "aria",
   version: "2.0.0",
   hasPermssion: 0,
   credits: "ArYAN - تم التحديث لآريا AI",
