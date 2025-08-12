@@ -36,8 +36,6 @@ module.exports.run = async function ({ api, event, args, getText }) {
     return api.sendMessage("💡 " + getText("noPrompt"), event.threadID, event.messageID);
   }
 
-  // إرسال رسالة معالجة
-  
   try {
     // إرسال الطلب للـ API
     const response = await axios.get(API_URL, {
@@ -52,18 +50,13 @@ module.exports.run = async function ({ api, event, args, getText }) {
     const reply = response.data?.answer || getText("noResponse");
     const usage = response.data?.usage || "";
 
-    // حذف رسالة المعالجة
-    
     // إرسال الرد
-    const finalMessage = `${reply}` : ""}`;
+    const finalMessage = `${reply}${usage ? `\n\n📊 الاستخدام: ${usage}` : ""}`;
     
     return api.sendMessage(finalMessage, event.threadID, event.messageID);
 
   } catch (err) {
     console.error("❌ خطأ في آريا:", err.message);
-    
-    // حذف رسالة المعالجة في حالة الخطأ
-    api.unsendMessage(processingMsg.messageID);
     
     return api.sendMessage("🚫 " + getText("errorAPI"), event.threadID, event.messageID);
   }
