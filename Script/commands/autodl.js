@@ -6,32 +6,32 @@ const { alldown } = require("shaon-videos-downloader");
 
 module.exports = {
   config: {
-    name: "autodl",
+    name: "تنزيل_تلقائي",
     version: "0.0.2",
     hasPermssion: 0,
     credits: "SHAON",
-    description: "Auto download videos when a link is sent",
-    commandCategory: "user",
+    description: "تحميل الفيديوهات تلقائياً عند إرسال رابط",
+    commandCategory: "المستخدم",
     usages: "",
     cooldowns: 5
   },
 
   languages: {
     en: {
+      downloading: "⏳ الرجاء الانتظار، يتم الآن تحميل الفيديو...",
+      success: "🎬 استمتع بمشاهدة الفيديو!",
+      error: "❌ فشل تحميل الفيديو."
+    },
+    ar: {
       downloading: "⏳ Please wait, downloading your video...",
       success: "🎬 Enjoy your video!",
       error: "❌ Failed to download video."
-    },
-    vi: {
-      downloading: "⏳ Vui lòng chờ, đang tải video...",
-      success: "🎬 Chúc bạn xem vui vẻ!",
-      error: "❌ Không thể tải video."
     }
   },
 
   run: async function ({ api, event, args }) {
-    // This command does not need to be called directly
-    return api.sendMessage("⚠️ This command works automatically when you send a video link.", event.threadID, event.messageID);
+    // هذا الأمر لا يحتاج إلى تشغيل يدوي
+    return api.sendMessage("⚠️ هذا الأمر يعمل تلقائياً عند إرسال رابط فيديو.", event.threadID, event.messageID);
   },
 
   handleEvent: async function ({ api, event, getText }) {
