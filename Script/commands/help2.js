@@ -1,16 +1,26 @@
 module.exports.config = {
-  name: "help2",
+  name: "اوامر",
   version: "3.0-onlyAll",
   hasPermssion: 0,
   credits: "Aminul Sordar - Simplified by ChatGPT",
-  description: "📚 Show all commands in decorated style",
-  commandCategory: "🛠 System",
+  description: "📚 عرض جميع الأوامر بشكل مزخرف",
+  commandCategory: "🛠 النظام",
   usages: "all",
   cooldowns: 5
 };
 
 module.exports.languages = {
   en: {
+    allCmds:
+`📚  جـمـيـع الأوامــر
+━━━━━━━━━━━━━━━━━━━━
+%1
+━━━━━━━━━━━━━━━━━━━━
+📌 المجموع: %2 أمر
+📂 الأحداث: %3
+🧑‍💻 صانع البوت: القروي`
+  },
+  ar: {
     allCmds:
 `📚 𝗔𝗟𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦
 ━━━━━━━━━━━━━━━━━━━━
@@ -27,11 +37,11 @@ module.exports.run = async function ({ api, event, args, getText }) {
   const { commands, events } = global.client;
 
   if (args[0] !== "all")
-    return api.sendMessage("❌ Please use: help all", threadID, messageID);
+    return api.sendMessage("❌ يرجى استخدام: help all", threadID, messageID);
 
   const allCmds = Array.from(commands.values()).map((cmd, i) =>
 `━❮●❯━━━━━❪❤💙💚❫━━━━━❮●❯━
-【•${i + 1} ★𝐂𝐌𝐃-𝐍𝐀𝐌𝐄★【•${cmd.config.name}•】`
+【•${i + 1} ★اسـم الأمـر★【•${cmd.config.name}•】`
   ).join("\n");
 
   const msg = getText(
