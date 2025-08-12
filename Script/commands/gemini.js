@@ -20,14 +20,14 @@ module.exports.config = {
 };
 
 module.exports.languages = {
-  "ar": {
+  "en": {
     noPrompt: "⚠️ يرجى كتابة سؤالك أو الرد على صورة!",
     errorAPI: "❌ فشل في الاتصال بـ آريا AI.",
     noResponse: "🤖 لا توجد استجابة من آريا.",
     imageFailed: "🖼️ فشل في معالجة الصورة مع آريا.",
     thinking: "🤔 آريا تفكر..."
   },
-  "en": {
+  "ar": {
     noPrompt: "⚠️ Please provide a question or reply to an image!",
     errorAPI: "❌ Failed to connect to Aria AI.",
     noResponse: "🤖 No response from Aria.",
@@ -95,16 +95,14 @@ module.exports.run = async function ({ api, event, args, getText }) {
 
     const data = response.data;
     
-    if (!data || !data.answer) {
-      return api.sendMessage("🤖 " + getText("noResponse"), event.threadID, event.messageID);
-    }
+      }
 
     // تنسيق الرد
     const reply = data.answer.trim();
     const usage = data.usage ? `\n\n📊 الاستخدام: ${data.usage}` : "";
     
     return api.sendMessage(
-      `🧠 آريا تجيب:\n\n${reply}${usage}`,
+      `${reply}`,
       event.threadID,
       event.messageID
     );
