@@ -1,25 +1,17 @@
 const axios = require("axios");
 
-async function getBaseApiUrl() {
-  try {
-    const res = await axios.get(
-      "https://raw.githubusercontent.com/itzaryan008/ERROR/refs/heads/main/raw/api.json"
-    );
-    return res.data.apis + "/gemini";
-  } catch (err) {
-    console.error("❌ Failed to fetch Gemini API:", err.message);
-    return null;
-  }
-}
+// رابط API آريا
+const ARIA_API_URL = "https://haji-mix-api.gleeze.com/api/aria";
+const API_KEY = "2ad1b6fc3d11354ea82d809b9f6b6864ff32d64f75bbd0d10d1b7a487c6f09cb";
 
 module.exports.config = {
-  name: "gemini",
+  name: "اريا",
   version: "2.0.0",
   hasPermssion: 0,
-  credits: "ArYAN - Decor by Aminul Sordar",
-  description: "🤖 Chat with Gemini AI using text or image input!",
-  commandCategory: "🤖 AI-Chat",
-  usages: "[prompt] | reply image",
+  credits: "ArYAN - تم التحديث لآريا AI",
+  description: "🤖 تحدث مع آريا AI المساعدة الذكية من أوبرا!",
+  commandCategory: "🤖 محادثة-ذكية",
+  usages: "[سؤالك] | رد على صورة",
   cooldowns: 5,
   dependencies: {
     axios: ""
@@ -28,22 +20,24 @@ module.exports.config = {
 };
 
 module.exports.languages = {
-  "vi": {
-    noPrompt: "⚠️ Vui lòng nhập nội dung hoặc trả lời một ảnh!",
-    errorAPI: "❌ Không thể kết nối tới API Gemini.",
-    noResponse: "🤖 Không có phản hồi từ Gemini.",
-    imageFailed: "🖼️ Lỗi khi xử lý ảnh với Gemini."
+  "ar": {
+    noPrompt: "⚠️ يرجى كتابة سؤالك أو الرد على صورة!",
+    errorAPI: "❌ فشل في الاتصال بـ آريا AI.",
+    noResponse: "🤖 لا توجد استجابة من آريا.",
+    imageFailed: "🖼️ فشل في معالجة الصورة مع آريا.",
+    thinking: "🤔 آريا تفكر..."
   },
   "en": {
-    noPrompt: "⚠️ Please provide a prompt or reply to an image!",
-    errorAPI: "❌ Failed to connect to Gemini API.",
-    noResponse: "🤖 No response from Gemini.",
-    imageFailed: "🖼️ Failed to process the image with Gemini."
+    noPrompt: "⚠️ Please provide a question or reply to an image!",
+    errorAPI: "❌ Failed to connect to Aria AI.",
+    noResponse: "🤖 No response from Aria.",
+    imageFailed: "🖼️ Failed to process the image with Aria.",
+    thinking: "🤔 Aria is thinking..."
   }
 };
 
 module.exports.onLoad = function () {
-  console.log("✅ Gemini module loaded successfully.");
+  console.log("✅ تم تحميل وحدة آريا AI بنجاح.");
 };
 
 module.exports.handleReaction = function () { };
@@ -52,11 +46,6 @@ module.exports.handleEvent = function () { };
 module.exports.handleSchedule = function () { };
 
 module.exports.run = async function ({ api, event, args, getText }) {
-  const BASE_API_URL = await getBaseApiUrl();
-  if (!BASE_API_URL) {
-    return api.sendMessage("🚨 " + getText("errorAPI"), event.threadID, event.messageID);
-  }
-
   const prompt = args.join(" ").trim();
 
   const isImageReply =
@@ -64,33 +53,84 @@ module.exports.run = async function ({ api, event, args, getText }) {
     event.messageReply.attachments?.length > 0 &&
     event.messageReply.attachments[0].type === "photo";
 
-  // 🧩 Validate prompt or image
+  // 🧩 التحقق من وجود سؤال أو صورة
   if (!prompt && !isImageReply) {
     return api.sendMessage("💡 " + getText("noPrompt"), event.threadID, event.messageID);
   }
 
-  // 🖼️ Handle image input
+  // إرسال رسالة أن آريا تفكر
+  const thinkingMessage = await api.sendMessage("🤔 " + getText("thinking"), event.threadID);
+
+  // 🖼️ معالجة الصور (ملاحظة: API آريا الحالي لا يدعم الصور، لكن يمكن إضافة هذه الميزة لاحقاً)
   if (isImageReply) {
-    const imageUrl = event.messageReply.attachments[0].url;
     try {
-      const res = await axios.get(
-        `${BASE_API_URL}?ask=${encodeURIComponent(prompt || "Describe this image")}&url=${encodeURIComponent(imageUrl)}`
+      // إزالة رسالة التفكير
+      api.unsendMessage(thinkingMessage.messageID);
+      
+      return api.sendMessage(
+        "🖼️ عذراً، آريا لا تدعم معالجة الصور حالياً. يرجى كتابة سؤالك نصياً.",
+        event.threadID,
+        event.messageID
       );
-      const reply = res.data?.gemini || getText("noResponse");
-      return api.sendMessage(`🧠 Gemini Says:\n\n${reply}`, event.threadID, event.messageID);
     } catch (err) {
-      console.error("❌ Gemini Image Error:", err.message);
+      console.error("❌ خطأ في معالجة الصورة:", err.message);
+      api.unsendMessage(thinkingMessage.messageID);
       return api.sendMessage("🚫 " + getText("imageFailed"), event.threadID, event.messageID);
     }
   }
 
-  // 💬 Handle text input
+  // 💬 معالجة النصوص
   try {
-    const res = await axios.get(`${BASE_API_URL}?ask=${encodeURIComponent(prompt)}`);
-    const reply = res.data?.gemini || getText("noResponse");
-    return api.sendMessage(`🧠 Gemini Says:\n\n${reply}`, event.threadID, event.messageID);
+    const response = await axios.get(ARIA_API_URL, {
+      params: {
+        ask: prompt,
+        stream: false,
+        api_key: API_KEY
+      },
+      timeout: 30000 // مهلة زمنية 30 ثانية
+    });
+
+    // إزالة رسالة التفكير
+    api.unsendMessage(thinkingMessage.messageID);
+
+    const data = response.data;
+    
+    if (!data || !data.answer) {
+      return api.sendMessage("🤖 " + getText("noResponse"), event.threadID, event.messageID);
+    }
+
+    // تنسيق الرد
+    const reply = data.answer.trim();
+    const usage = data.usage ? `\n\n📊 الاستخدام: ${data.usage}` : "";
+    
+    return api.sendMessage(
+      `🧠 آريا تجيب:\n\n${reply}${usage}`,
+      event.threadID,
+      event.messageID
+    );
+
   } catch (err) {
-    console.error("❌ Gemini Text Error:", err.message);
-    return api.sendMessage("🚫 " + getText("errorAPI"), event.threadID, event.messageID);
+    console.error("❌ خطأ في آريا AI:", err.message);
+    
+    // إزالة رسالة التفكير
+    api.unsendMessage(thinkingMessage.messageID);
+    
+    // رسائل خطأ مفصلة
+    let errorMessage = "🚫 " + getText("errorAPI");
+    
+    if (err.code === 'ECONNABORTED') {
+      errorMessage = "⏰ انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.";
+    } else if (err.response) {
+      const status = err.response.status;
+      if (status === 401) {
+        errorMessage = "🔑 خطأ في مفتاح API. يرجى التحقق من صحة المفتاح.";
+      } else if (status === 429) {
+        errorMessage = "🚫 تم تجاوز الحد المسموح من الطلبات. يرجى المحاولة لاحقاً.";
+      } else if (status >= 500) {
+        errorMessage = "🔧 خطأ في الخادم. يرجى المحاولة لاحقاً.";
+      }
+    }
+    
+    return api.sendMessage(errorMessage, event.threadID, event.messageID);
   }
 };
