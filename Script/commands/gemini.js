@@ -51,7 +51,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
     const usage = response.data?.usage || "";
 
     // إرسال الرد
-    const finalMessage = `${reply}${usage ? `\n\n📊 الاستخدام: ${usage}` : ""}`;
+    const finalMessage = `${reply}` : ""}`;
     
     return api.sendMessage(finalMessage, event.threadID, event.messageID);
 
