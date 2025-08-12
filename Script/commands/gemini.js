@@ -67,21 +67,19 @@ module.exports.handleReply = async function ({ api, event, handleReply, getText 
     // تنسيق الرد
     const reply = data.answer.trim();
     
-    return api.sendMessage(
-      reply,
-      event.threadID,
-      event.messageID,
-      (err, info) => {
-        if (!err) {
-          global.client.handleReply.push({
-            name: this.config.name,
-            messageID: info.messageID,
-            author: event.senderID,
-            type: "reply"
-          });
-        }
-      }
-    );
+    const messageInfo = await api.sendMessage(reply, event.threadID, event.messageID);
+    
+    // إضافة معرف الرسالة للردود
+    if (messageInfo && messageInfo.messageID && global.client && global.client.handleReply) {
+      global.client.handleReply.push({
+        name: this.config.name,
+        messageID: messageInfo.messageID,
+        author: event.senderID,
+        type: "reply"
+      });
+    }
+    
+    return messageInfo;
 
   } catch (err) {
     console.error("❌ خطأ في آريا AI:", err.message);
