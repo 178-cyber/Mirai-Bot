@@ -48,10 +48,9 @@ module.exports.run = async function ({ api, event, args, getText }) {
 
     // استخراج الإجابة
     const reply = response.data?.answer || getText("noResponse");
-    const usage = response.data?.usage || "";
 
     // إرسال الرد
-    const finalMessage = `${reply}` : ""}`;
+    const finalMessage = `${reply}`;
     
     return api.sendMessage(finalMessage, event.threadID, event.messageID);
 
