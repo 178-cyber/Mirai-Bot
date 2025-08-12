@@ -28,10 +28,10 @@ function formatDuration(seconds) {
 }
 
 module.exports.languages = {
-	"ar": {
+	"en": {
 		"returnResult": "🤖 مدة عمل البوت:\n⏳ %1 شهر %2 يوم %3 ساعة %4 دقيقة %5 ثانية\n\n👥 عدد المستخدمين: %6\n💬 عدد المجموعات: %7\n⚙️ استهلاك المعالج: %8%\n🧠 استهلاك الرام: %9\n📶 البنغ: %10ms\n\n✨ هذا البوت من تطوير فريق Mirai"
 	},
-	"en": {
+	"ar": {
 		"returnResult": "🤖 Bot has been running for:\n⏳ %1 month(s) %2 day(s) %3 hour(s) %4 minute(s) %5 second(s)\n\n👥 Users: %6\n💬 Threads: %7\n⚙️ CPU: %8%\n🧠 RAM: %9\n📶 Ping: %10ms\n\n✨This bot was made by Mirai Team"
 	}
 };
