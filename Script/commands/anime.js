@@ -1,11 +1,11 @@
 module.exports.config = {
-	name: "anime",
+	name: "انمي",
 	version: "1.0.2",
 	hasPermssion: 0,
 	credits: "Mirai Team",
-	description: "Random lấy ảnh anime! (Safe For Work)",
-	commandCategory: "random-img",
-	usages: "[tag]",
+	description: "جلب صورة أنمي عشوائية (محتوى آمن)",
+	commandCategory: "صور-عشوائية",
+	usages: "[التصنيف]",
     cooldowns: 5,
 	dependencies: {
         "request": "",
@@ -15,8 +15,8 @@ module.exports.config = {
 };
 
 module.exports.languages = {
-    "vi": {
-        "addTags": "=== Tất cả các tag của Anime ===\n%1"
+    "ar": {
+        "addTags": "=== جميع تصنيفات الأنمي ===\n%1"
     },
     "en": {
         "addTags": "=== Anime's tags ===\n%1"
