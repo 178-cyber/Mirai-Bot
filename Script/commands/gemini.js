@@ -26,13 +26,6 @@ module.exports.languages = {
     noResponse: "🤖 لا توجد استجابة من آريا.",
     imageFailed: "🖼️ فشل في معالجة الصورة مع آريا.",
     thinking: "🤔 آريا تفكر..."
-  },
-  "ar": {
-    noPrompt: "⚠️ Please provide a question or reply to an image!",
-    errorAPI: "❌ Failed to connect to Aria AI.",
-    noResponse: "🤖 No response from Aria.",
-    imageFailed: "🖼️ Failed to process the image with Aria.",
-    thinking: "🤔 Aria is thinking..."
   }
 };
 
@@ -41,7 +34,80 @@ module.exports.onLoad = function () {
 };
 
 module.exports.handleReaction = function () { };
-module.exports.handleReply = function () { };
+module.exports.handleReply = async function ({ api, event, handleReply, getText }) {
+  // معالجة الرد على رسائل آريا
+  const prompt = event.body.trim();
+  
+  if (!prompt) {
+    return api.sendMessage("💡 " + getText("noPrompt"), event.threadID, event.messageID);
+  }
+
+  // إرسال رسالة أن آريا تفكر
+  const thinkingMessage = await api.sendMessage("🤔 " + getText("thinking"), event.threadID);
+
+  try {
+    const response = await axios.get(ARIA_API_URL, {
+      params: {
+        ask: prompt,
+        stream: false,
+        api_key: API_KEY
+      },
+      timeout: 30000 // مهلة زمنية 30 ثانية
+    });
+
+    // إزالة رسالة التفكير
+    api.unsendMessage(thinkingMessage.messageID);
+
+    const data = response.data;
+    
+    if (!data || !data.answer) {
+      return api.sendMessage("🤖 " + getText("noResponse"), event.threadID, event.messageID);
+    }
+
+    // تنسيق الرد
+    const reply = data.answer.trim();
+    
+    return api.sendMessage(
+      reply,
+      event.threadID,
+      event.messageID,
+      (err, info) => {
+        if (!err) {
+          global.client.handleReply.push({
+            name: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID,
+            type: "reply"
+          });
+        }
+      }
+    );
+
+  } catch (err) {
+    console.error("❌ خطأ في آريا AI:", err.message);
+    
+    // إزالة رسالة التفكير
+    api.unsendMessage(thinkingMessage.messageID);
+    
+    // رسائل خطأ مفصلة
+    let errorMessage = "🚫 " + getText("errorAPI");
+    
+    if (err.code === 'ECONNABORTED') {
+      errorMessage = "⏰ انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.";
+    } else if (err.response) {
+      const status = err.response.status;
+      if (status === 401) {
+        errorMessage = "🔑 خطأ في مفتاح API. يرجى التحقق من صحة المفتاح.";
+      } else if (status === 429) {
+        errorMessage = "🚫 تم تجاوز الحد المسموح من الطلبات. يرجى المحاولة لاحقاً.";
+      } else if (status >= 500) {
+        errorMessage = "🔧 خطأ في الخادم. يرجى المحاولة لاحقاً.";
+      }
+    }
+    
+    return api.sendMessage(errorMessage, event.threadID, event.messageID);
+  }
+};
 module.exports.handleEvent = function () { };
 module.exports.handleSchedule = function () { };
 
@@ -90,18 +156,32 @@ module.exports.run = async function ({ api, event, args, getText }) {
       timeout: 30000 // مهلة زمنية 30 ثانية
     });
 
+    // إزالة رسالة التفكير
+    api.unsendMessage(thinkingMessage.messageID);
+
+    const data = response.data;
     
-    
-      }
+    if (!data || !data.answer) {
+      return api.sendMessage("🤖 " + getText("noResponse"), event.threadID, event.messageID);
+    }
 
     // تنسيق الرد
     const reply = data.answer.trim();
-    const usage = data.usage ? `\n\n📊 الاستخدام: ${data.usage}` : "";
     
     return api.sendMessage(
-      `${reply}`,
+      reply,
       event.threadID,
-      event.messageID
+      event.messageID,
+      (err, info) => {
+        if (!err) {
+          global.client.handleReply.push({
+            name: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID,
+            type: "reply"
+          });
+        }
+      }
     );
 
   } catch (err) {
