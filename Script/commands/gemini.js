@@ -90,10 +90,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
       timeout: 30000 // مهلة زمنية 30 ثانية
     });
 
-    // إزالة رسالة التفكير
-    api.unsendMessage(thinkingMessage.messageID);
-
-    const data = response.data;
+    
     
       }
 
