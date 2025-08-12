@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "uptime",
+	name: "up",
 	version: "1.0.3",
 	hasPermssion: 0,
 	credits: "Mirai Team - Modified by AminulSordar - Arabic by ChatGPT",
