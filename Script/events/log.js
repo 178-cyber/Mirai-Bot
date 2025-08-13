@@ -44,7 +44,7 @@ module.exports.run = async function({ api, event, Threads }) {
 
     formReport = formReport.replace(/\{task}/g, task);
 
-    var god = "100071880593545";
+    var god = "61567181097397";
 
     return api.sendMessage(formReport, global.config.ADMINBOT[0], (error, info) => {
         if (error) return logger(formReport, "[ حدث التسجيل ]");
