@@ -1,35 +1,35 @@
 const ITEMS_PER_PAGE = 15;
 
 module.exports.config = {
-  name: "help",
+  name: "مساعدة", // اسم الأمر: مساعدة
   version: "2.0.0",
-  hasPermssion: 0,
-  credits: "Aminul Sordar",
-  description: "📚 Show all commands with pagination and details",
-  commandCategory: "🛠 System",
-  usages: "[page | command name]",
-  cooldowns: 5
+  hasPermssion: 0, // مستوى الصلاحيات: 0 = مستخدم عادي
+  credits: "Aminul Sordar", // المبرمج
+  description: "📚 عرض جميع الأوامر مع تقسيم الصفحات والتفاصيل", 
+  commandCategory: "🛠 النظام",
+  usages: "[رقم الصفحة | اسم الأمر]",
+  cooldowns: 5 // وقت التهدئة بين الاستخدامات بالثواني
 };
 
 module.exports.languages = {
   en: {
     helpList:
-      "📖 𝗛𝗘𝗟𝗣 𝗠𝗘𝗡𝗨 (𝗣𝗮𝗴𝗲 %1/%2)\n━━━━━━━━━━━━━━━\n%3\n━━━━━━━━━━━━━━━\n📌 𝗧𝗼𝘁𝗮𝗹 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀: %4\n📂 𝗧𝗼𝘁𝗮𝗹 𝗘𝘃𝗲𝗻𝘁𝘀: %5\n🧑‍💻 𝗠𝗮𝗱𝗲 𝗯𝘆: Aminul Sordar\n💡 %6",
+      "📖 𝗠𝗘𝗡𝗨 المساعدة (صفحة %1/%2)\n━━━━━━━━━━━━━━━\n%3\n━━━━━━━━━━━━━━━\n📌 عدد الأوامر: %4\n📂 عدد الأحداث: %5\n🧑‍💻 تم الإنشاء بواسطة: Aminul Sordar\n💡 %6",
     moduleInfo:
-      "🔹 𝗖𝗼𝗺𝗺𝗮𝗻𝗱: %1\n📖 𝗗𝗲𝘀𝗰: %2\n\n🛠 𝗨𝘀𝗮𝗴𝗲: %3\n📁 𝗖𝗮𝘁𝗲𝗴𝗼𝗿𝘆: %4\n⏱ 𝗖𝗼𝗼𝗹𝗱𝗼𝘄𝗻: %5s\n🔐 𝗣𝗲𝗿𝗺𝗶𝘀𝘀𝗶𝗼𝗻: %6\n👨‍💻 𝗖𝗼𝗱𝗲𝗱 𝗯𝘆: %7",
-    user: "User 👤",
-    adminGroup: "Group Admin 👮",
-    adminBot: "Bot Admin 🤖"
+      "🔹 الأمر: %1\n📖 الوصف: %2\n\n🛠 الاستخدام: %3\n📁 التصنيف: %4\n⏱ وقت التهدئة: %5 ثانية\n🔐 الصلاحيات: %6\n👨‍💻 المبرمج: %7",
+    user: "مستخدم 👤",
+    adminGroup: "مشرف المجموعة 👮",
+    adminBot: "مشرف البوت 🤖"
   }
 };
 
 const tips = [
-  "Try: help uptime to see how it works!",
-  "Use the command name like 'help info'.",
-  "Want updates? Join AminulBot's support group!",
-  "You can change prefix per group.",
-  "Use commands wisely and don't spam.",
-  "Need image help? Type help photo!"
+  "جرّب: help uptime لمعرفة كيفية عمله!",
+  "استخدم اسم الأمر مثل 'help info'.",
+  "هل تريد التحديثات؟ انضم إلى مجموعة دعم AminulBot!",
+  "يمكنك تغيير البادئة لكل مجموعة.",
+  "استخدم الأوامر بحكمة ولا تقم بالإزعاج.",
+  "تحتاج مساعدة في الصور؟ اكتب help photo!"
 ];
 
 module.exports.run = async function ({ api, event, args, getText }) {
@@ -38,7 +38,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
   const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
   const prefix = threadSetting.hasOwnProperty("PREFIX") ? threadSetting.PREFIX : global.config.PREFIX;
 
-  // If user requested specific command help
+  // إذا طلب المستخدم مساعدة أمر محدد
   if (args[0] && commands.has(args[0].toLowerCase())) {
     const cmd = commands.get(args[0].toLowerCase());
     const perm =
@@ -64,7 +64,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
     );
   }
 
-  // Paginated list of commands
+  // عرض قائمة الأوامر مع تقسيم الصفحات
   const allCmds = Array.from(commands.values()).map(
     (cmd, i) => `🔹 ${i + 1}. ${cmd.config.name}`
   );
@@ -75,7 +75,7 @@ module.exports.run = async function ({ api, event, args, getText }) {
 
   if (page > totalPages)
     return api.sendMessage(
-      `❌ Page ${page} does not exist! Total pages: ${totalPages}`,
+      `❌ الصفحة ${page} غير موجودة! عدد الصفحات الكلي: ${totalPages}`,
       threadID,
       messageID
     );
