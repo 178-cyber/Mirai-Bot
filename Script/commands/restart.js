@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "restart",
+  name: "ريست",
   version: "1.0.0",
   hasPermssion: 2,
   credits: "AMINULSORDAR",
@@ -16,7 +16,7 @@ module.exports.run = async ({ api, event }) => {
 
 module.exports.languages = {
   en: {
-    restarting: "Bot is now restarting..."
+    restarting: "يتم اعادة تشغيل البوت..."
   },
   vi: {
     restarting: "Bot đang được khởi động lại..."
