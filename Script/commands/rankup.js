@@ -1,10 +1,10 @@
 module.exports.config = {
-	name: "rankup",
+	name: "ترقية_المستوى",
 	version: "1.0.1",
 	hasPermssion: 1,
-	credits: "Mirai Team",
-	description: "Thông báo rankup cho từng nhóm, người dùng",
-	commandCategory: "system",
+	credits: "فريق Mirai",
+	description: "إشعار بالترقية في المستوى لكل مجموعة أو مستخدم",
+	commandCategory: "النظام",
 	dependencies: {
 		"fs-extra": ""
 	},
@@ -64,16 +64,16 @@ module.exports.handleEvent = async function({ api, event, Currencies, Users, get
 
 module.exports.languages = {
 	"vi": {
-		"on": "bật",
-		"off": "tắt",
-		"successText": "thành công thông báo rankup!",
-		"levelup": "Trình độ chém gió của {name} đã đạt tới level {level}"
+		"on": "تشغيل",
+		"off": "إيقاف",
+		"successText": "تم تفعيل إشعارات الترقية بنجاح!",
+		"levelup": "مستوى الكتابة لدى {name} وصل إلى المستوى {level}"
 	},
 	"en": {
-		"on": "on",
-		"off": "off",
-		"successText": "success notification rankup!",
-		"levelup": "{name}, your keyboard hero level has reached level {level}",
+		"on": "تشغيل",
+		"off": "إيقاف",
+		"successText": "تم تفعيل إشعارات الترقية بنجاح!",
+		"levelup": "يا {name}، لقد وصل مستواك إلى المستوى {level}"
 	}
 }
 
