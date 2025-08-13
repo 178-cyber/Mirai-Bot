@@ -1,11 +1,11 @@
 module.exports.config = {
-    name: "setjoin",
+    name: "ترحيب",
     version: "1.0.4",
     hasPermssion: 1,
-    credits: "Mirai Team",
-    description: "Chỉnh sửa văn bản/ảnh động khi có thành viên mới tham gia",
-    commandCategory: "config",
-    usages: "[gif/text] [Text hoặc url tải ảnh gif]",
+    credits: "فريق Mirai",
+    description: "تعديل نص/صورة متحركة عند انضمام عضو جديد",
+    commandCategory: "الإعدادات",
+    usages: "[gif/نص] [النص أو رابط تحميل صورة gif]",
     cooldowns: 10,
     dependencies: {
         "fs-extra": "",
@@ -25,28 +25,28 @@ module.exports.onLoad = function () {
 
 module.exports.languages = {
     "vi": {
-        "savedConfig": "Đã lưu tùy chỉnh của bạn thành công! dưới đây sẽ là phần preview:",
-        "tagMember": "[Tên thành viên]",
-        "tagType": "[Bạn/các bạn]",
-        "tagCountMember": "[Số thành viên]",
-        "tagNameGroup": "[Tên nhóm]",
-        "gifPathNotExist": "Nhóm của bạn chưa từng cài đặt gif join",
-        "removeGifSuccess": "Đã gỡ bỏ thành công file gif của nhóm bạn!",
-        "invaildURL": "Url bạn nhập không phù hợp!",
-        "internetError": "Không thể tải file vì url không tồn tại hoặc bot đã xảy ra vấn đề về mạng!",
-        "saveGifSuccess": "Đã lưu file gif của nhóm bạn thành công, bên dưới đây là preview:"
+        "savedConfig": "تم حفظ إعداداتك بنجاح! فيما يلي المعاينة:",
+        "tagMember": "[اسم العضو]",
+        "tagType": "[أنت/أنتم]",
+        "tagCountMember": "[عدد الأعضاء]",
+        "tagNameGroup": "[اسم المجموعة]",
+        "gifPathNotExist": "مجموعتك لم تقم بتعيين صورة gif للترحيب من قبل",
+        "removeGifSuccess": "تمت إزالة ملف gif الخاص بمجموعتك بنجاح!",
+        "invaildURL": "الرابط الذي أدخلته غير صالح!",
+        "internetError": "تعذر تحميل الملف لأن الرابط غير موجود أو هناك مشكلة في الاتصال بالإنترنت!",
+        "saveGifSuccess": "تم حفظ ملف gif الخاص بمجموعتك بنجاح، فيما يلي المعاينة:"
     },
     "en": {
-        "savedConfig": "Saved your config, here is preview:",
-        "tagMember": "[Member's name]",
-        "tagType": "[You/They]",
-        "tagCountMember": "[Member number]",
-        "tagNameGroup": "[Thread's name]",
-        "gifPathNotExist":"Your thread didn't set gif join",
-        "removeGifSuccess": "Removed thread's gif!",
-        "invaildURL": "Invalid url!",
-        "internetError": "Can't load file because url doesn't exist or internet have some problem!",
-        "saveGifSuccess": "Saved file gif, here is preview:"
+        "savedConfig": "تم حفظ إعداداتك، هذه هي المعاينة:",
+        "tagMember": "[اسم العضو]",
+        "tagType": "[أنت/أنتم]",
+        "tagCountMember": "[عدد الأعضاء]",
+        "tagNameGroup": "[اسم المجموعة]",
+        "gifPathNotExist":"مجموعتك لم تقم بتعيين صورة gif للترحيب",
+        "removeGifSuccess": "تمت إزالة صورة gif الخاصة بالمجموعة!",
+        "invaildURL": "رابط غير صالح!",
+        "internetError": "تعذر تحميل الملف لأن الرابط غير موجود أو هناك مشكلة في الإنترنت!",
+        "saveGifSuccess": "تم حفظ ملف gif، هذه هي المعاينة:"
     }
 }
 
