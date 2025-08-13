@@ -11,7 +11,7 @@ module.exports.config = {
 
 module.exports.run = async ({ api, event }) => {
   const { threadID } = event;
-  return api.sendMessage(`${global.config.BOTNAME} Bot is now restarting...`, threadID, () => process.exit(1));
+  return api.sendMessage(`${global.config.BOTNAME} يتم اعادة التشغيل...`, threadID, () => process.exit(1));
 };
 
 module.exports.languages = {
