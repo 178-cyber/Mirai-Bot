@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "marry",
+  name: "زواج",
   version: "3.1.1",
   hasPermssion: 0,
   credits: "aminulsordar ",
