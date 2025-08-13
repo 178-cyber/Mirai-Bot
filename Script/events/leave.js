@@ -4,50 +4,50 @@ module.exports.config = {
   name: "leave",
   eventType: ["log:unsubscribe"],
   version: "2.0.0",
-  credits: "Decorated by Aminul Sordar based on MIRAI-BOT",
-  description: "Send a decorated goodbye message when someone leaves the group.",
+  credits: "ترجمة وتزيين بواسطة Aminul Sordar بالاعتماد على MIRAI-BOT",
+  description: "إرسال رسالة وداع مزخرفة عند مغادرة شخص من المجموعة.",
   dependencies: {}
 };
 
 module.exports.onLoad = () => {
-  // No need for any folders — media removed
+  // لا حاجة لأي مجلدات — تم حذف الوسائط
 };
 
 module.exports.run = async function ({ api, event, Users, Threads }) {
-  // If the bot leaves, skip the message
+  // إذا غادر البوت نفسه، لا يتم إرسال رسالة
   if (event.logMessageData.leftParticipantFbId == api.getCurrentUserID()) return;
 
   const { threadID } = event;
 
-  // Get current time and session
+  // الحصول على الوقت الحالي والفترة
   const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
   const hour = parseInt(moment.tz("Asia/Dhaka").format("HH"));
   const session =
-    hour < 10 ? "🌅 Morning" :
-    hour <= 12 ? "🌤️ Noon" :
-    hour <= 18 ? "🌇 Afternoon" :
-    "🌙 Evening";
+    hour < 10 ? "🌅 صباحًا" :
+    hour <= 12 ? "🌤️ ظهرًا" :
+    hour <= 18 ? "🌇 مساءً" :
+    "🌙 ليلًا";
 
-  // Get group data and user info
+  // جلب بيانات المجموعة واسم المستخدم
   const threadData = global.data.threadData.get(threadID) || (await Threads.getData(threadID)).data;
   const name = global.data.userName.get(event.logMessageData.leftParticipantFbId) || await Users.getNameUser(event.logMessageData.leftParticipantFbId);
-  const type = (event.author == event.logMessageData.leftParticipantFbId) ? "left on their own" : "was removed";
+  const type = (event.author == event.logMessageData.leftParticipantFbId) ? "غادر بنفسه" : "تمت إزالته";
 
-  // Default decorated message
+  // الرسالة الافتراضية المزخرفة
   let msg = typeof threadData.customLeave === "undefined"
     ? `╭───────────────╮\n` +
-      ` 🙋‍♂️ Member Left Notice\n` +
+      ` 🙋‍♂️ إشعار مغادرة عضو\n` +
       `╰───────────────╯\n\n` +
-      `👤 Name: ✨ ${name} ✨\n` +
-      `📤 Status: ${type}\n` +
-      `🕒 Time: ${time}\n` +
-      `📆 Session: ${session}\n\n` +
-      `💌 We hope you'll always remember the good times here.\n` +
-      `🔕 Don't follow their path if they did wrong.\n\n` +
-      `🕌 Stay united in this Islamic group 💙`
+      `👤 الاسم: ✨ ${name} ✨\n` +
+      `📤 الحالة: ${type}\n` +
+      `🕒 الوقت: ${time}\n` +
+      `📆 الفترة: ${session}\n\n` +
+      `💌 نتمنى أن تتذكر دائمًا الأوقات الجميلة هنا.\n` +
+      `🔕 لا تتبع طريقه إذا كان على خطأ.\n\n` +
+      `🕌 لنبقَ متحدين في هذه المجموعة الإسلامية 💙`
     : threadData.customLeave;
 
-  // Replace placeholders in customLeave message
+  // استبدال العناصر في الرسالة المخصصة
   msg = msg
     .replace(/\{name}/g, name)
     .replace(/\{type}/g, type)
