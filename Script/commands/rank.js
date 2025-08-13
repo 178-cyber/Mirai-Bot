@@ -1,7 +1,7 @@
 module.exports.config = {
 	name: "الرتبة",
 	version: "1.0.3",
-	hasPermission: 0, // تصحيح الخطأ الإملائي
+	hasPermission: 0,
 	credits: "CataliCS",
 	description: "عرض رتبتك الحالية على نظام البوت، إعادة تصميم بطاقة الرتبة من canvacord",
 	commandCategory: "النظام",
@@ -19,99 +19,165 @@ module.exports.config = {
 	}
 };
 
-module.exports.makeRankCard = async function(data) { // تحويل إلى function عادية للوصول لـ this
-    /*
-    * 
-    * إعادة تصميم من Canvacord
-    * 
-    */
-
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-	const Canvas = global.nodemodule["canvas"];
-	const request = global.nodemodule["node-superfetch"];
-	const __root = path.resolve(__dirname, "cache");
-	const PI = Math.PI;
-
-    const { id, name, rank, level, expCurrent, expNextLevel } = data;
+module.exports.makeRankCard = async function(data) {
+	console.log("🔄 بدء إنشاء بطاقة الرتبة...");
 	
-	console.log(await global.utils.assets.font("REGULAR-FONT"));
+	try {
+		const fs = global.nodemodule["fs-extra"];
+		const path = global.nodemodule["path"];
+		const Canvas = global.nodemodule["canvas"];
+		const request = global.nodemodule["node-superfetch"];
+		
+		// التحقق من وجود المجلدات المطلوبة
+		const __root = path.resolve(__dirname, "cache");
+		if (!fs.existsSync(__root)) {
+			console.log("📁 إنشاء مجلد cache...");
+			fs.mkdirSync(__root, { recursive: true });
+		}
+		
+		const PI = Math.PI;
+		const { id, name, rank, level, expCurrent, expNextLevel } = data;
+		
+		console.log("📊 بيانات المستخدم:", { id, name, rank, level, expCurrent, expNextLevel });
 
-	Canvas.registerFont(await global.utils.assets.font("REGULAR-FONT"), {
-		family: "Manrope",
-		weight: "regular",
-		style: "normal"
-	});
-	Canvas.registerFont(await global.utils.assets.font("BOLD-FONT"), {
-		family: "Manrope",
-		weight: "bold",
-		style: "normal"
-	});
+		// التحقق من وجود الخطوط
+		let regularFont, boldFont;
+		try {
+			regularFont = await global.utils.assets.font("REGULAR-FONT");
+			boldFont = await global.utils.assets.font("BOLD-FONT");
+			console.log("✅ تم تحميل الخطوط بنجاح");
+		} catch (fontError) {
+			console.log("⚠️ خطأ في تحميل الخطوط:", fontError.message);
+			// استخدام خط افتراضي
+			regularFont = null;
+			boldFont = null;
+		}
 
-	let rankCard = await Canvas.loadImage(await global.utils.assets.image("RANKCARD"));
-	const pathImg = __root + `/rank_${id}.png`;
-	
-	var expWidth = (expCurrent * 615) / expNextLevel;
-	if (expWidth > 615 - 18.5) expWidth = 615 - 18.5;
-	
-	// استخدام module.exports بدلاً من this للوصول للدوال الأخرى
-	let avatar = await request.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${global.configModule[module.exports.config.name].APIKEY}`);
+		if (regularFont && boldFont) {
+			Canvas.registerFont(regularFont, {
+				family: "Manrope",
+				weight: "regular",
+				style: "normal"
+			});
+			Canvas.registerFont(boldFont, {
+				family: "Manrope",
+				weight: "bold",
+				style: "normal"
+			});
+		}
 
-	avatar = await module.exports.circle(avatar.body);
+		// التحقق من وجود صورة البطاقة
+		let rankCard;
+		try {
+			rankCard = await Canvas.loadImage(await global.utils.assets.image("RANKCARD"));
+			console.log("✅ تم تحميل صورة البطاقة بنجاح");
+		} catch (cardError) {
+			console.log("⚠️ خطأ في تحميل صورة البطاقة:", cardError.message);
+			// إنشاء بطاقة بسيطة كبديل
+			const canvas = Canvas.createCanvas(934, 282);
+			const ctx = canvas.getContext("2d");
+			ctx.fillStyle = "#7289DA";
+			ctx.fillRect(0, 0, 934, 282);
+			rankCard = canvas;
+		}
 
-	const canvas = Canvas.createCanvas(934, 282);
-	const ctx = canvas.getContext("2d");
+		const pathImg = __root + `/rank_${id}.png`;
+		
+		var expWidth = (expCurrent * 615) / expNextLevel;
+		if (expWidth > 615 - 18.5) expWidth = 615 - 18.5;
+		
+		// تحميل صورة الملف الشخصي
+		let avatar;
+		try {
+			console.log("🖼️ تحميل صورة الملف الشخصي...");
+			let avatarResponse = await request.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${global.configModule[module.exports.config.name].APIKEY}`);
+			avatar = await module.exports.circle(avatarResponse.body);
+			console.log("✅ تم تحميل الصورة الشخصية بنجاح");
+		} catch (avatarError) {
+			console.log("⚠️ خطأ في تحميل الصورة الشخصية:", avatarError.message);
+			// إنشاء دائرة بسيطة كبديل
+			const avatarCanvas = Canvas.createCanvas(180, 180);
+			const avatarCtx = avatarCanvas.getContext("2d");
+			avatarCtx.fillStyle = "#36393f";
+			avatarCtx.beginPath();
+			avatarCtx.arc(90, 90, 90, 0, 2 * PI);
+			avatarCtx.fill();
+			avatar = avatarCanvas.toBuffer();
+		}
 
-	ctx.drawImage(rankCard, 0, 0, canvas.width, canvas.height);
-	ctx.drawImage(await Canvas.loadImage(avatar), 45, 50, 180, 180);
+		const canvas = Canvas.createCanvas(934, 282);
+		const ctx = canvas.getContext("2d");
 
-	ctx.font = `bold 36px Manrope`;
-	ctx.fillStyle = "#FFFFFF";
-	ctx.textAlign = "start";
-	ctx.fillText(name, 270, 164);
-	ctx.font = `36px Manrope`;
-	ctx.fillStyle = "#FFFFFF";
-	ctx.textAlign = "center";
+		// رسم البطاقة
+		if (rankCard.toBuffer) {
+			// إذا كانت rankCard هي canvas
+			ctx.drawImage(rankCard, 0, 0, canvas.width, canvas.height);
+		} else {
+			// إذا كانت صورة عادية
+			ctx.drawImage(rankCard, 0, 0, canvas.width, canvas.height);
+		}
+		
+		ctx.drawImage(await Canvas.loadImage(avatar), 45, 50, 180, 180);
 
-	ctx.font = `bold 32px Manrope`;
-	ctx.fillStyle = "#FFFFFF";
-	ctx.textAlign = "end";
-	ctx.fillText(level, 934 - 55, 82);
-	ctx.fillStyle = "#FFFFFF";
-	ctx.fillText("Lv.", 934 - 55 - ctx.measureText(level).width - 10, 82);
+		// استخدام خط افتراضي إذا لم تعمل الخطوط المخصصة
+		const fontFamily = regularFont && boldFont ? "Manrope" : "Arial";
 
-	ctx.font = `bold 32px Manrope`;
-	ctx.fillStyle = "#FFFFFF";
-	ctx.textAlign = "end";
-	ctx.fillText(rank, 934 - 55 - ctx.measureText(level).width - 16 - ctx.measureText(`Lv.`).width - 25, 82);
-	ctx.fillStyle = "#FFFFFF";
-	ctx.fillText("#", 934 - 55 - ctx.measureText(level).width - 16 - ctx.measureText(`Lv.`).width - 16 - ctx.measureText(rank).width - 16, 82);
+		ctx.font = `bold 36px ${fontFamily}`;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textAlign = "start";
+		ctx.fillText(name, 270, 164);
 
-	ctx.font = `bold 26px Manrope`;
-	ctx.fillStyle = "#FFFFFF";
-	ctx.textAlign = "start";
-	ctx.fillText("/ " + expNextLevel, 710 + ctx.measureText(expCurrent).width + 10, 164);
-	ctx.fillStyle = "#FFFFFF";
-	ctx.fillText(expCurrent, 710, 164);
+		ctx.font = `bold 32px ${fontFamily}`;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textAlign = "end";
+		ctx.fillText(level, 934 - 55, 82);
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillText("Lv.", 934 - 55 - ctx.measureText(level).width - 10, 82);
 
-	ctx.beginPath();
-	ctx.fillStyle = "#4283FF";
-	ctx.arc(257 + 18.5, 147.5 + 18.5 + 36.25, 18.5, 1.5 * PI, 0.5 * PI, true);
-	ctx.fill();
-	ctx.fillRect(257 + 18.5, 147.5 + 36.25, expWidth, 37.5);
-	ctx.arc(257 + 18.5 + expWidth, 147.5 + 18.5 + 36.25, 18.75, 1.5 * PI, 0.5 * PI, false);
-	ctx.fill();
+		ctx.font = `bold 32px ${fontFamily}`;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textAlign = "end";
+		ctx.fillText(rank, 934 - 55 - ctx.measureText(level).width - 16 - ctx.measureText(`Lv.`).width - 25, 82);
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillText("#", 934 - 55 - ctx.measureText(level).width - 16 - ctx.measureText(`Lv.`).width - 16 - ctx.measureText(rank).width - 16, 82);
 
-	const imageBuffer = canvas.toBuffer();
-	fs.writeFileSync(pathImg, imageBuffer);
-	return pathImg;
+		ctx.font = `bold 26px ${fontFamily}`;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textAlign = "start";
+		ctx.fillText("/ " + expNextLevel, 710 + ctx.measureText(expCurrent).width + 10, 164);
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillText(expCurrent, 710, 164);
+
+		// رسم شريط التقدم
+		ctx.beginPath();
+		ctx.fillStyle = "#4283FF";
+		ctx.arc(257 + 18.5, 147.5 + 18.5 + 36.25, 18.5, 1.5 * PI, 0.5 * PI, true);
+		ctx.fill();
+		ctx.fillRect(257 + 18.5, 147.5 + 36.25, expWidth, 37.5);
+		ctx.arc(257 + 18.5 + expWidth, 147.5 + 18.5 + 36.25, 18.75, 1.5 * PI, 0.5 * PI, false);
+		ctx.fill();
+
+		const imageBuffer = canvas.toBuffer();
+		fs.writeFileSync(pathImg, imageBuffer);
+		console.log("✅ تم حفظ بطاقة الرتبة بنجاح في:", pathImg);
+		return pathImg;
+		
+	} catch (error) {
+		console.error("❌ خطأ في إنشاء بطاقة الرتبة:", error);
+		throw error;
+	}
 }
 
 module.exports.circle = async (image) => {
-    const jimp = global.nodemodule["jimp"];
-	image = await jimp.read(image);
-	image.circle();
-	return await image.getBufferAsync("image/png");
+	try {
+		const jimp = global.nodemodule["jimp"];
+		image = await jimp.read(image);
+		image.circle();
+		return await image.getBufferAsync("image/png");
+	} catch (error) {
+		console.error("❌ خطأ في تدوير الصورة:", error);
+		throw error;
+	}
 }
 
 module.exports.expToLevel = (point) => {
@@ -124,12 +190,23 @@ module.exports.levelToExp = (level) => {
 	return 3 * level * (level - 1);
 }
 
-module.exports.getInfo = async function(uid, Currencies) { // تحويل إلى function عادية
-	let point = (await Currencies.getData(uid)).exp;
-	const level = module.exports.expToLevel(point); // استخدام module.exports
-	const expCurrent = point - module.exports.levelToExp(level);
-	const expNextLevel = module.exports.levelToExp(level + 1) - module.exports.levelToExp(level);
-	return { level, expCurrent, expNextLevel };
+module.exports.getInfo = async function(uid, Currencies) {
+	try {
+		console.log("📊 جلب معلومات المستخدم:", uid);
+		let userData = await Currencies.getData(uid);
+		console.log("📊 بيانات العملة:", userData);
+		
+		let point = userData.exp || 0;
+		const level = module.exports.expToLevel(point);
+		const expCurrent = point - module.exports.levelToExp(level);
+		const expNextLevel = module.exports.levelToExp(level + 1) - module.exports.levelToExp(level);
+		
+		console.log("📊 معلومات المستوى:", { level, expCurrent, expNextLevel, totalExp: point });
+		return { level, expCurrent, expNextLevel };
+	} catch (error) {
+		console.error("❌ خطأ في جلب معلومات المستخدم:", error);
+		throw error;
+	}
 }
 
 module.exports.languages = {
@@ -142,28 +219,73 @@ module.exports.languages = {
 }
 
 module.exports.run = async function({ event, api, Currencies, Users, getText }) {
-	const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+	console.log("🚀 تم استدعاء أمر الرتبة بواسطة:", event.senderID);
 	
 	try {
-		let dataAll = (await Currencies.getAll(["userID", "exp"]));
+		// التحقق من وجود المكتبات المطلوبة
+		const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+		
+		if (!Currencies) {
+			console.error("❌ Currencies غير متوفر");
+			return api.sendMessage("خطأ: نظام العملات غير متوفر حالياً.", event.threadID, event.messageID);
+		}
+		
+		if (!Users) {
+			console.error("❌ Users غير متوفر");
+			return api.sendMessage("خطأ: نظام المستخدمين غير متوفر حالياً.", event.threadID, event.messageID);
+		}
+
+		console.log("📊 جلب جميع بيانات المستخدمين...");
+		let dataAll = await Currencies.getAll(["userID", "exp"]);
+		console.log("📊 عدد المستخدمين في قاعدة البيانات:", dataAll.length);
+
+		if (!dataAll || dataAll.length === 0) {
+			console.log("⚠️ قاعدة البيانات فارغة");
+			return api.sendMessage("قاعدة البيانات فارغة حالياً. لا توجد بيانات متوفرة.", event.threadID, event.messageID);
+		}
 
 		dataAll.sort(function (a, b) { return b.exp - a.exp });
 
 		const rank = dataAll.findIndex(item => parseInt(item.userID) == parseInt(event.senderID)) + 1;
-		if (rank == 0) return api.sendMessage(getText("userNotExist"), event.threadID, event.messageID);
+		console.log("🏆 رتبة المستخدم:", rank);
 		
+		if (rank == 0) {
+			console.log("⚠️ المستخدم غير موجود في قاعدة البيانات");
+			return api.sendMessage(getText("userNotExist"), event.threadID, event.messageID);
+		}
+		
+		console.log("👤 جلب اسم المستخدم...");
 		const name = await Users.getNameUser(event.senderID);
-		const point = await module.exports.getInfo(event.senderID, Currencies); // استخدام module.exports
-		const timeStart = Date.now();
-		let pathRankCard = await module.exports.makeRankCard({ id: event.senderID, name, rank, ...point })
+		console.log("👤 اسم المستخدم:", name);
 		
+		console.log("📊 جلب معلومات النقاط...");
+		const point = await module.exports.getInfo(event.senderID, Currencies);
+		
+		const timeStart = Date.now();
+		console.log("🎨 بدء إنشاء بطاقة الرتبة...");
+		
+		let pathRankCard = await module.exports.makeRankCard({ 
+			id: event.senderID, 
+			name, 
+			rank, 
+			...point 
+		});
+		
+		const timeTaken = Date.now() - timeStart;
+		console.log(`⏱️ تم إنشاء البطاقة في ${timeTaken}ms`);
+		
+		console.log("📤 إرسال البطاقة...");
 		return api.sendMessage({
-			body: `${Date.now() - timeStart}ms`, 
+			body: `🏆 رتبتك: #${rank}\n⏱️ وقت الإنشاء: ${timeTaken}ms`, 
 			attachment: createReadStream(pathRankCard, {'highWaterMark': 128 * 1024}) 
-		}, event.threadID, () => unlinkSync(pathRankCard), event.messageID);
+		}, event.threadID, () => {
+			console.log("🗑️ حذف الملف المؤقت");
+			unlinkSync(pathRankCard);
+		}, event.messageID);
 		
 	} catch (error) {
-		console.error("Error in rank command:", error);
-		return api.sendMessage("حدث خطأ أثناء إنشاء بطاقة الرتبة. الرجاء المحاولة مرة أخرى.", event.threadID, event.messageID);
+		console.error("❌ خطأ عام في أمر الرتبة:", error);
+		console.error("Stack trace:", error.stack);
+		return api.sendMessage(`❌ حدث خطأ: ${error.message}\n\nيرجى التحقق من console للمزيد من التفاصيل.`, event.threadID, event.messageID);
 	}
 }
