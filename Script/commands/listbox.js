@@ -1,11 +1,11 @@
 module.exports.config = {
-  name: 'listbox',
+  name: 'مجموعات',
   version: '1.0.0',
-  credits: 'Mirai Team',
+  credits: 'فريق Mirai',
   hasPermssion: 2,
-  description: 'List threads the bot has joined',
-  commandCategory: 'System',
-  usages: 'listbox',
+  description: 'عرض قائمة المجموعات التي انضم إليها البوت',
+  commandCategory: 'النظام',
+  usages: 'قائمة_المجموعات',
   cooldowns: 15
 };
 
@@ -17,7 +17,7 @@ module.exports.handleReply = async function({ api, event, Threads, handleReply }
   const index = parseInt(args[1]);
 
   if (isNaN(index) || index < 1 || index > handleReply.groupid.length)
-    return api.sendMessage('❌ Invalid number.', event.threadID, event.messageID);
+    return api.sendMessage('❌ رقم غير صالح.', event.threadID, event.messageID);
 
   const threadID = handleReply.groupid[index - 1];
 
@@ -28,20 +28,20 @@ module.exports.handleReply = async function({ api, event, Threads, handleReply }
         threadData.banned = 1;
         await Threads.setData(threadID, { data: threadData });
         global.data.threadBanned.set(parseInt(threadID), 1);
-        return api.sendMessage(`✅ Thread [${threadID}] has been banned!`, event.threadID, event.messageID);
+        return api.sendMessage(`✅ تم حظر المجموعة [${threadID}]!`, event.threadID, event.messageID);
       }
 
       if (action === 'out') {
         try {
           await api.removeUserFromGroup(api.getCurrentUserID(), threadID);
           const { name } = await Threads.getData(threadID);
-          return api.sendMessage(`✅ Removed from thread: ${name || 'Unknown'}\n🧩 TID: ${threadID}`, event.threadID, event.messageID);
+          return api.sendMessage(`✅ تم الخروج من المجموعة: ${name || 'غير معروف'}\n🧩 معرف المجموعة: ${threadID}`, event.threadID, event.messageID);
         } catch (err) {
-          return api.sendMessage(`❌ Failed to leave thread [${threadID}]: ${err.message}`, event.threadID, event.messageID);
+          return api.sendMessage(`❌ فشل الخروج من المجموعة [${threadID}]: ${err.message}`, event.threadID, event.messageID);
         }
       }
 
-      return api.sendMessage('❌ Unknown action. Use "ban" or "out".', event.threadID, event.messageID);
+      return api.sendMessage('❌ أمر غير معروف. استخدم "ban" أو "out".', event.threadID, event.messageID);
     }
   }
 };
@@ -55,22 +55,22 @@ module.exports.run = async function({ api, event, Threads }) {
     const threadInfo = await api.getThreadInfo(thread.threadID);
     resultList.push({
       id: thread.threadID,
-      name: thread.name || 'Unnamed Group',
+      name: thread.name || 'مجموعة بدون اسم',
       memberCount: threadInfo.userInfo.length
     });
   }
 
   resultList.sort((a, b) => b.memberCount - a.memberCount);
 
-  let msg = '📦 List of groups the bot is in:\n\n';
+  let msg = '📦 قائمة المجموعات التي يتواجد فيها البوت:\n\n';
   const groupid = [];
 
   resultList.forEach((group, index) => {
-    msg += `${index + 1}. ${group.name}\n🧩 TID: ${group.id}\n👥 Members: ${group.memberCount}\n\n`;
+    msg += `${index + 1}. ${group.name}\n🧩 معرف المجموعة: ${group.id}\n👥 عدد الأعضاء: ${group.memberCount}\n\n`;
     groupid.push(group.id);
   });
 
-  msg += '💬 Reply with:\n👉 "out <number>" to leave\n👉 "ban <number>" to ban the group';
+  msg += '💬 قم بالرد بـ:\n👉 "out <الرقم>" للخروج من المجموعة\n👉 "ban <الرقم>" لحظر المجموعة';
 
   api.sendMessage(msg, event.threadID, (err, info) => {
     if (err) return;
@@ -85,13 +85,16 @@ module.exports.run = async function({ api, event, Threads }) {
 };
 
 module.exports.languages = {
+  ar: {
+    // يمكن إضافة الردود العربية هنا إذا لزم الأمر
+  },
   en: {
-    // Add English responses if needed
+    // يمكن إضافة الردود الإنجليزية هنا إذا لزم الأمر
   },
   vi: {
-    // Add Vietnamese responses if needed
+    // يمكن إضافة الردود الفيتنامية هنا إذا لزم الأمر
   },
   bn: {
-    // Optional: Add Bengali if you're supporting it
+    // يمكن إضافة الردود البنغالية هنا إذا لزم الأمر
   }
 };
