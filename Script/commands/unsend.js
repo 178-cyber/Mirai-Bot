@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "unsend",
+	name: "حذف",
 	version: "1.0.1",
 	hasPermssion: 0,
 	credits: "Mirai Team",
@@ -15,8 +15,8 @@ module.exports.languages = {
 		"missingReply": "Hãy reply tin nhắn cần gỡ."
 	},
 	"en": {
-		"returnCant": "Can't to unsend message from other user.",
-		"missingReply": "Reply to the message you want to unsend."
+		"returnCant": "لا يمكنني حذف رسائل المستخدمين ياغبي.",
+		"missingReply": "رد على الرسالة التي تريد حذفها."
 	}
 }
 
