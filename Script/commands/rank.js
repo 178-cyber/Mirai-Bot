@@ -1,7 +1,7 @@
 module.exports.config = {
 	name: "الرتبة",
 	version: "1.0.3",
-	hasPermssion: 0,
+	hasPermission: 0, // تصحيح الخطأ الإملائي
 	credits: "CataliCS",
 	description: "عرض رتبتك الحالية على نظام البوت، إعادة تصميم بطاقة الرتبة من canvacord",
 	commandCategory: "النظام",
@@ -19,7 +19,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.makeRankCard = async (data) => {    
+module.exports.makeRankCard = async function(data) { // تحويل إلى function عادية للوصول لـ this
     /*
     * 
     * إعادة تصميم من Canvacord
@@ -54,9 +54,10 @@ module.exports.makeRankCard = async (data) => {
 	var expWidth = (expCurrent * 615) / expNextLevel;
 	if (expWidth > 615 - 18.5) expWidth = 615 - 18.5;
 	
-	let avatar = await request.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${global.configModule[this.config.name].APIKEY}`);
+	// استخدام module.exports بدلاً من this للوصول للدوال الأخرى
+	let avatar = await request.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${global.configModule[module.exports.config.name].APIKEY}`);
 
-	avatar = await this.circle(avatar.body);
+	avatar = await module.exports.circle(avatar.body);
 
 	const canvas = Canvas.createCanvas(934, 282);
 	const ctx = canvas.getContext("2d");
@@ -123,11 +124,11 @@ module.exports.levelToExp = (level) => {
 	return 3 * level * (level - 1);
 }
 
-module.exports.getInfo = async (uid, Currencies) => {
+module.exports.getInfo = async function(uid, Currencies) { // تحويل إلى function عادية
 	let point = (await Currencies.getData(uid)).exp;
-	const level = this.expToLevel(point);
-	const expCurrent = point - this.levelToExp(level);
-	const expNextLevel = this.levelToExp(level + 1) - this.levelToExp(level);
+	const level = module.exports.expToLevel(point); // استخدام module.exports
+	const expCurrent = point - module.exports.levelToExp(level);
+	const expNextLevel = module.exports.levelToExp(level + 1) - module.exports.levelToExp(level);
 	return { level, expCurrent, expNextLevel };
 }
 
@@ -135,23 +136,34 @@ module.exports.languages = {
 	"vi": {
 		"userNotExist": "أنت غير موجود حالياً في قاعدة البيانات، لذا لا يمكنك رؤية رتبتك. الرجاء المحاولة مرة أخرى بعد 5 ثوانٍ."
 	},
-	"en" :{
+	"en": {
 		"userNotExist": "أنت غير موجود حالياً في قاعدة البيانات، لذا لا يمكنك رؤية رتبتك. الرجاء المحاولة مرة أخرى بعد 5 ثوانٍ."
 	}
 }
 
-module.exports.run = async ({ event, api, Currencies, Users, getText }) => {
+module.exports.run = async function({ event, api, Currencies, Users, getText }) {
 	const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
 	
-	let dataAll = (await Currencies.getAll(["userID", "exp"]));
+	try {
+		let dataAll = (await Currencies.getAll(["userID", "exp"]));
 
-	dataAll.sort(function (a, b) { return b.exp - a.exp });
+		dataAll.sort(function (a, b) { return b.exp - a.exp });
 
-	const rank = dataAll.findIndex(item => parseInt(item.userID) == parseInt(event.senderID)) + 1;
-	if (rank == 0) return api.sendMessage(getText("userNotExist"), event.threadID, event.messageID);
-	const name = await Users.getNameUser(event.senderID);
-	const point = await this.getInfo(event.senderID, Currencies);
-	const timeStart = Date.now();
-	let pathRankCard = await this.makeRankCard({ id: event.senderID, name, rank, ...point })
-	return api.sendMessage({body: `${Date.now() - timeStart}`, attachment: createReadStream(pathRankCard, {'highWaterMark': 128 * 1024}) }, event.threadID, () => unlinkSync(pathRankCard), event.messageID);
+		const rank = dataAll.findIndex(item => parseInt(item.userID) == parseInt(event.senderID)) + 1;
+		if (rank == 0) return api.sendMessage(getText("userNotExist"), event.threadID, event.messageID);
+		
+		const name = await Users.getNameUser(event.senderID);
+		const point = await module.exports.getInfo(event.senderID, Currencies); // استخدام module.exports
+		const timeStart = Date.now();
+		let pathRankCard = await module.exports.makeRankCard({ id: event.senderID, name, rank, ...point })
+		
+		return api.sendMessage({
+			body: `${Date.now() - timeStart}ms`, 
+			attachment: createReadStream(pathRankCard, {'highWaterMark': 128 * 1024}) 
+		}, event.threadID, () => unlinkSync(pathRankCard), event.messageID);
+		
+	} catch (error) {
+		console.error("Error in rank command:", error);
+		return api.sendMessage("حدث خطأ أثناء إنشاء بطاقة الرتبة. الرجاء المحاولة مرة أخرى.", event.threadID, event.messageID);
+	}
 }
