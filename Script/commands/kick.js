@@ -1,24 +1,19 @@
 module.exports.config = {
-	name: "kick",
+	name: "طرد",
 	version: "1.0.1", 
 	hasPermssion: 1,
-	credits: "Mirai Team",
-	description: "Xoá người bạn cần xoá khỏi nhóm bằng cách tag",
-	commandCategory: "other", 
-	usages: "[tag]", 
+	credits: "فريق Mirai",
+	description: "طرد الشخص الذي تريد إخراجه من المجموعة عن طريق الإشارة (Tag)",
+	commandCategory: "أوامر أخرى", 
+	usages: "[إشارة]", 
 	cooldowns: 0,
 };
 
 module.exports.languages = {
-	"vi": {
-		"error": "Đã có lỗi xảy ra, vui lòng thử lại sau",
-		"needPermssion": "Cần quyền quản trị viên nhóm\nVui lòng thêm và thử lại!",
-		"missingTag": "Bạn phải tag người cần kick"
-	},
-	"en": {
-		"error": "Error! An error occurred. Please try again later!",
-		"needPermssion": "Need group admin\nPlease add and try again!",
-		"missingTag": "You need tag some person to kick"
+	"ar": {
+		"error": "حدث خطأ، يرجى المحاولة لاحقًا!",
+		"needPermssion": "يجب أن يكون البوت أدمن في المجموعة\nالرجاء منحه الصلاحيات ثم حاول مجددًا!",
+		"missingTag": "يجب عليك الإشارة إلى الشخص الذي تريد طرده"
 	}
 }
 
@@ -26,14 +21,25 @@ module.exports.run = async function({ api, event, getText, Threads }) {
 	var mention = Object.keys(event.mentions);
 	try {
 		let dataThread = (await Threads.getData(event.threadID)).threadInfo;
-		if (!dataThread.adminIDs.some(item => item.id == api.getCurrentUserID())) return api.sendMessage(getText("needPermssion"), event.threadID, event.messageID);
-		if(!mention[0]) return api.sendMessage("Bạn phải tag người cần kick",event.threadID);
+
+		// التحقق من أن البوت أدمن
+		if (!dataThread.adminIDs.some(item => item.id == api.getCurrentUserID())) 
+			return api.sendMessage(getText("needPermssion"), event.threadID, event.messageID);
+
+		// التحقق من وجود إشارة
+		if(!mention[0]) 
+			return api.sendMessage(getText("missingTag"), event.threadID);
+
+		// التحقق من أن الشخص الذي ينفذ الأمر أدمن
 		if (dataThread.adminIDs.some(item => item.id == event.senderID)) {
 			for (const o in mention) {
 				setTimeout(() => {
-					api.removeUserFromGroup(mention[o],event.threadID) 
-				},3000)
+					api.removeUserFromGroup(mention[o], event.threadID);
+				}, 3000);
 			}
 		}
-	} catch { return api.sendMessage(getText("error"),event.threadID) }
+	}
+	catch (e) {
+		api.sendMessage(getText("error"), event.threadID, event.messageID);
+	}
 }
