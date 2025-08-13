@@ -21,7 +21,12 @@ module.exports.languages = {
 }
 
 module.exports.run = function({ api, event, getText }) {
-	if (event.messageReply.senderID != api.getCurrentUserID()) return api.sendMessage(getText("returnCant"), event.threadID, event.messageID);
+	// التحقق أولاً من وجود reply
 	if (event.type != "message_reply") return api.sendMessage(getText("missingReply"), event.threadID, event.messageID);
+	
+	// ثم التحقق من أن الرسالة المُرد عليها من البوت
+	if (event.messageReply.senderID != api.getCurrentUserID()) return api.sendMessage(getText("returnCant"), event.threadID, event.messageID);
+	
+	// حذف الرسالة
 	return api.unsendMessage(event.messageReply.messageID);
 }
