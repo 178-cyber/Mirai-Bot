@@ -1,18 +1,18 @@
 module.exports.config = {
-	name: "sendnoti",
+	name: "اشعار", // إرسال إشعار
 	version: "1.0.2",
-	hasPermssion: 2,
+	hasPermssion: 2, // 2 = صلاحيات الأدمن
 	credits: "AMINUL-SORDAR",
-	description: "announcement from admin",
-	commandCategory: "Admin",
-	usages: "[Text]",
+	description: "إرسال إعلان من المسؤول",
+	commandCategory: "الإدارة",
+	usages: "[النص]",
 	cooldowns: 5
 };
  
 module.exports.languages = {
-	"vi": {
-		"sendSuccess": "ÄÃ£ gá»­i thÃ¡nh chá»‰ tá»›i %1 nhÃ³m",
-		"sendFail": "KhÃ´ng thá»ƒ gá»­i thÃ¡nh chá»‰ tá»›i %1 nhÃ³m"
+	"ar": {
+		"sendSuccess": "✅ تم إرسال الرسالة إلى %1 مجموعة!",
+		"sendFail": "❌ لم يتمكن من إرسال الرسالة إلى %1 مجموعة"
 	},
 	"en": {
 		"sendSuccess": "Sent message to %1 thread!",
@@ -21,56 +21,77 @@ module.exports.languages = {
 }
  
 module.exports.run = async ({ api, event, args, getText, Users }) => {
-  const name = await Users.getNameUser(event.senderID)
-const moment = require("moment-timezone");
-      var gio = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:s");  
-if (event.type == "message_reply") {
-const request = global.nodemodule["request"];
-const fs = require('fs')
-const axios = require('axios')
-			var getURL = await request.get(event.messageReply.attachments[0].url);
- 
-					var pathname = getURL.uri.pathname;
-var ext = pathname.substring(pathname.lastIndexOf(".") + 1);
- 
-					var path = __dirname + `/cache/snoti`+`.${ext}`;
- 
- 
-var abc = event.messageReply.attachments[0].url;
-    let getdata = (await axios.get(`${abc}`, { responseType: 'arraybuffer' })).data;
- 
-  fs.writeFileSync(path, Buffer.from(getdata, 'utf-8'));
- 
- 
-	var allThread = global.data.allThreadID || [];
-	var count = 1,
-		cantSend = [];
-	for (const idThread of allThread) {
-		if (isNaN(parseInt(idThread)) || idThread == event.threadID) ""
-		else {
-			api.sendMessage({body: `` + args.join(` `) + `\n\nfrom Admin: ${name}`,attachment: fs.createReadStream(path) }, idThread, (error, info) => {
-				if (error) cantSend.push(idThread);
-			});
-			count++;
-			await new Promise(resolve => setTimeout(resolve, 500));
+	const name = await Users.getNameUser(event.senderID);
+	const moment = require("moment-timezone");
+	const gio = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:s");
+
+	// إذا كانت الرسالة رد على رسالة تحتوي على مرفق
+	if (event.type == "message_reply") {
+		const request = global.nodemodule["request"];
+		const fs = require('fs');
+		const axios = require('axios');
+
+		const getURL = await request.get(event.messageReply.attachments[0].url);
+		const pathname = getURL.uri.pathname;
+		const ext = pathname.substring(pathname.lastIndexOf(".") + 1);
+		const path = __dirname + `/cache/snoti.${ext}`;
+		const abc = event.messageReply.attachments[0].url;
+
+		let getdata = (await axios.get(`${abc}`, { responseType: 'arraybuffer' })).data;
+		fs.writeFileSync(path, Buffer.from(getdata, 'utf-8'));
+
+		var allThread = global.data.allThreadID || [];
+		var count = 1, cantSend = [];
+		for (const idThread of allThread) {
+			if (isNaN(parseInt(idThread)) || idThread == event.threadID) continue;
+			else {
+				api.sendMessage({
+					body: `${args.join(" ")}\n\n📢 من المسؤول: ${name}`,
+					attachment: fs.createReadStream(path)
+				}, idThread, (error) => {
+					if (error) cantSend.push(idThread);
+				});
+				count++;
+				await new Promise(resolve => setTimeout(resolve, 500));
+			}
 		}
+
+		return api.sendMessage(
+			getText("sendSuccess", count),
+			event.threadID,
+			() => (cantSend.length > 0)
+				? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID)
+				: "",
+			event.messageID
+		);
 	}
-	return api.sendMessage(getText("sendSuccess", count), event.threadID, () => (cantSend.length > 0 ) ? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID) : "", event.messageID);
- 
-}
-else {
-	var allThread = global.data.allThreadID || [];
-	var count = 1,
-		cantSend = [];
-	for (const idThread of allThread) {
-		if (isNaN(parseInt(idThread)) || idThread == event.threadID) ""
-		else {
-			api.sendMessage(`` + args.join(` `) + `\n\nfrom Admin: ${name}`, idThread, (error, info) => {
-				if (error) cantSend.push(idThread);
-			});
-			count++;
-			await new Promise(resolve => setTimeout(resolve, 500));
+
+	// إذا لم يكن هناك رد على رسالة
+	else {
+		var allThread = global.data.allThreadID || [];
+		var count = 1, cantSend = [];
+		for (const idThread of allThread) {
+			if (isNaN(parseInt(idThread)) || idThread == event.threadID) continue;
+			else {
+				api.sendMessage(
+					`${args.join(" ")}\n\n📢 من المسؤول: ${name}`,
+					idThread,
+					(error) => {
+						if (error) cantSend.push(idThread);
+					}
+				);
+				count++;
+				await new Promise(resolve => setTimeout(resolve, 500));
+			}
 		}
+
+		return api.sendMessage(
+			getText("sendSuccess", count),
+			event.threadID,
+			() => (cantSend.length > 0)
+				? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID)
+				: "",
+			event.messageID
+		);
 	}
-	return api.sendMessage(getText("sendSuccess", count), event.threadID, () => (cantSend.length > 0 ) ? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID) : "", event.messageID); }
-}
+};
