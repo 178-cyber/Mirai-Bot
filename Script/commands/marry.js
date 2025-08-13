@@ -16,10 +16,10 @@ module.exports.config = {
 };
 
 module.exports.languages = {
-  en: {
+  ar: {
     noTag: "Please mention one person to marry 💍."
   },
-  ar: {
+  en: {
     noTag: "منشن شخصاً لتزوجه 💍."
   },
   vi: {
