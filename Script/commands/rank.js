@@ -1,10 +1,10 @@
 module.exports.config = {
-	name: "rank",
+	name: "الرتبة",
 	version: "1.0.3",
 	hasPermssion: 0,
 	credits: "CataliCS",
-	description: "Lấy rank hiện tại của bạn trên hệ thống bot, remake rank_card from canvacord",
-	commandCategory: "system",
+	description: "عرض رتبتك الحالية على نظام البوت، إعادة تصميم بطاقة الرتبة من canvacord",
+	commandCategory: "النظام",
 	cooldowns: 20,
 	dependencies: {
 		"fs-extra": "",
@@ -22,7 +22,7 @@ module.exports.config = {
 module.exports.makeRankCard = async (data) => {    
     /*
     * 
-    * Remake from Canvacord
+    * إعادة تصميم من Canvacord
     * 
     */
 
@@ -133,10 +133,10 @@ module.exports.getInfo = async (uid, Currencies) => {
 
 module.exports.languages = {
 	"vi": {
-		"userNotExist": "Bạn hiện không có trong cơ sở dữ liệu nên không thể thấy thứ hạng của mình, vui lòng thử lại sau 5 giây."
+		"userNotExist": "أنت غير موجود حالياً في قاعدة البيانات، لذا لا يمكنك رؤية رتبتك. الرجاء المحاولة مرة أخرى بعد 5 ثوانٍ."
 	},
 	"en" :{
-		"userNotExist": "You are not currently in the database so you cannot see your rank, please try again in 5 seconds."
+		"userNotExist": "أنت غير موجود حالياً في قاعدة البيانات، لذا لا يمكنك رؤية رتبتك. الرجاء المحاولة مرة أخرى بعد 5 ثوانٍ."
 	}
 }
 
